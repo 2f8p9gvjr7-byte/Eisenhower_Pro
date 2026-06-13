@@ -335,13 +335,32 @@
 </div>
 
 <!-- Modal RDV -->
+
+<!-- Modal Deadline -->
+<div class="modal-overlay" id="dl-modal">
+  <div class="modal">
+    <h3>📆 Au plus tard</h3>
+    <div class="modal-rdv-label">Tâche concernée</div>
+    <div id="dl-modal-task-name" style="font-size:.9rem;color:#c5d3e3;margin-bottom:1rem;padding:8px 12px;background:#0d1321;border-radius:8px;border:1px solid #2e3d5a;"></div>
+    <div class="modal-rdv-label">Date limite</div>
+    <input type="date" id="dl-date-input" style="width:100%;background:#0d1321;border:1px solid #2e3d5a;border-radius:10px;padding:12px 14px;font-size:1.1rem;color:#e8f0f8;outline:none;margin-bottom:.9rem;"/>
+    <div class="modal-btns">
+      <button class="btn-modal-clear" id="dl-clear">🗑 Supprimer</button>
+      <button class="btn-modal-cancel" id="dl-cancel">Annuler</button>
+      <button class="btn-modal-save" id="dl-save" style="background:#3dbfa8;">✓ Valider</button>
+    </div>
+  </div>
+</div>
 <div class="modal-overlay" id="rdv-modal">
   <div class="modal">
     <h3>📆 Rendez-vous pris</h3>
     <div class="modal-rdv-label">Tâche concernée</div>
     <div id="rdv-modal-task-name" style="font-size:.9rem;color:#c5d3e3;margin-bottom:1rem;padding:8px 12px;background:#0d1321;border-radius:8px;border:1px solid #2e3d5a;"></div>
     <div class="modal-rdv-label">Date et heure du RDV</div>
-    <input type="datetime-local" id="rdv-datetime-input"/>
+    <div style="display:flex;gap:8px;margin-bottom:.9rem;">
+      <input type="date" id="rdv-date-input" style="flex:1;background:#0d1321;border:1px solid #2e3d5a;border-radius:10px;padding:12px 10px;font-size:.9rem;color:#e8f0f8;outline:none;" onfocus="this.style.borderColor='#9b8fd4'" onblur="this.style.borderColor='#2e3d5a'"/>
+      <input type="time" id="rdv-time-input" style="flex:1;background:#0d1321;border:1px solid #2e3d5a;border-radius:10px;padding:12px 10px;font-size:.9rem;color:#e8f0f8;outline:none;" onfocus="this.style.borderColor='#9b8fd4'" onblur="this.style.borderColor='#2e3d5a'"/>
+    </div>
     <div class="modal-btns" style="flex-wrap:wrap;">
       <button class="btn-modal-cancel" id="rdv-cancel">Annuler</button>
       <button class="btn-modal-clear" id="rdv-clear">🗑 Supprimer</button>
@@ -381,8 +400,8 @@ function setTbMins(id,val){const mins=parseInt(val)||0;tasks=tasks.map(t=>t.id==
 function setDeadline(id,val){tasks=tasks.map(t=>t.id===id?{...t,deadline:val}:t);save();render();}
 
 /* ---- RDV ---- */
-function openRdvModal(id){const task=tasks.find(t=>t.id===id);if(!task)return;rdvEditId=id;document.getElementById('rdv-modal-task-name').textContent=task.text;document.getElementById('rdv-datetime-input').value=task.rdvDatetime||'';document.getElementById('rdv-modal').classList.add('open');}
-function saveRdv(){const val=document.getElementById('rdv-datetime-input').value;tasks=tasks.map(t=>t.id===rdvEditId?{...t,rdvDatetime:val}:t);document.getElementById('rdv-modal').classList.remove('open');rdvEditId=null;save();render();toast(val?'📆 RDV enregistré !':'RDV supprimé');}
+function openRdvModal(id){const task=tasks.find(t=>t.id===id);if(!task)return;rdvEditId=id;document.getElementById('rdv-modal-task-name').textContent=task.text;const dt=task.rdvDatetime||'';if(dt){document.getElementById('rdv-date-input').value=dt.split('T')[0];document.getElementById('rdv-time-input').value=dt.split('T')[1]||'';}else{document.getElementById('rdv-date-input').value='';document.getElementById('rdv-time-input').value='';}document.getElementById('rdv-modal').classList.add('open');}
+function saveRdv(){const d=document.getElementById('rdv-date-input').value;const t=document.getElementById('rdv-time-input').value;const val=(d&&t)?d+'T'+t:'';tasks=tasks.map(t=>t.id===rdvEditId?{...t,rdvDatetime:val}:t);document.getElementById('rdv-modal').classList.remove('open');rdvEditId=null;save();render();toast(val?'📆 RDV enregistré !':'RDV supprimé');}
 function clearRdv(){tasks=tasks.map(t=>t.id===rdvEditId?{...t,rdvDatetime:''}:t);document.getElementById('rdv-modal').classList.remove('open');rdvEditId=null;save();render();toast('RDV supprimé');}
 function fmtRdv(dt){if(!dt)return'';const d=new Date(dt);return d.toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'})+' à '+d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});}
 function rdvDiffDays(dt){if(!dt)return null;const now=new Date();const d=new Date(dt);return Math.round((d-now)/86400000);}
@@ -400,7 +419,7 @@ function initSortable(listId,quadrant){if(sortables[listId])sortables[listId].de
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function emptyMsg(msg){return'<div style="text-align:center;color:#2e3d5a;font-size:.82rem;padding:1.5rem;">'+msg+'</div>';}
 function tbRow(t){const isRunning=activeTimer&&activeTimer.id===t.id;const cdVal=isRunning?fmtTime(activeTimer.remaining):'';const mins=t.tbMins||'';return'<div class="tb-row"><span class="tb-label-txt">⏱ Temps alloué</span><input class="tb-input" type="number" min="1" max="240" placeholder="min" value="'+mins+'" id="tb-inp-'+t.id+'" onchange="setTbMins('+t.id+',this.value)"/><span class="tb-unit">min</span>'+(isRunning?'<span class="tb-countdown'+(activeTimer.remaining<=60?' urgent':'')+'" id="tb-cd-'+t.id+'">'+cdVal+'</span><button class="tb-stop" onclick="stopTimer()">⏹ Stop</button>':'<button class="tb-start" onclick="startTimer('+t.id+')">▶ Lancer</button>')+'</div>';}
-function dlRow(t){const badge=deadlineBadge(t.deadline);return'<div class="dl-row"><span class="dl-label-txt">📆 Au plus tard</span><input class="dl-input" type="date" value="'+(t.deadline||'')+'" id="dl-inp-'+t.id+'" onchange="setDeadline('+t.id+',this.value)"/>'+(badge?badge:'')+'</div>';}
+function dlRow(t){const badge=deadlineBadge(t.deadline);const btnLabel=t.deadline?badge:'<span style="color:#3dbfa8;font-size:.72rem;font-weight:700;">+ Saisir une date</span>';return'<div class="dl-row" onclick="openDlModal('+t.id+')" style="cursor:pointer;"><span class="dl-label-txt">📆 Au plus tard</span>'+btnLabel+'</div>';}
 function quadrantTaskRow(t){return'<div class="task-row" data-id="'+t.id+'"><span class="drag-handle">⠿</span><div class="big-check" onclick="markDone('+t.id+')" title="Réalisée"></div><span class="task-name">'+esc(t.text)+'</span><span class="status-badge">'+QLABELS[t.quadrant]+'</span><button class="btn-icon" onclick="openEdit('+t.id+')" title="Modifier">✏️</button><button class="btn-icon btn-del" onclick="removeTask('+t.id+')" title="Supprimer">✕</button></div>'+tbRow(t)+dlRow(t)+rdvRow(t);}
 function allTaskRow(t){const qc=QCOLORS[t.quadrant];return'<div style="border-left:4px solid '+qc+';border-bottom:1px solid #1e2d4a;"><div class="task-row" data-id="'+t.id+'" style="border-bottom:none;"><div class="big-check" onclick="markDone('+t.id+')" title="Réalisée"></div><span class="task-name">'+esc(t.text)+'</span><select class="all-q-select" onchange="changeQ('+t.id+',this.value)" style="color:'+qc+';border-color:'+qc+'55;"><option value="do"'+(t.quadrant==='do'?'selected':'')+'>✅ Urgent & Imp.</option><option value="plan"'+(t.quadrant==='plan'?'selected':'')+'>📅 Imp. pas urgent</option><option value="delegate"'+(t.quadrant==='delegate'?'selected':'')+'>👤 Urgent pas imp.</option><option value="eliminate"'+(t.quadrant==='eliminate'?'selected':'')+'>🗑️ Ni urgent ni imp.</option></select><button class="btn-icon" onclick="openEdit('+t.id+')" title="Modifier">✏️</button><button class="btn-icon btn-del" onclick="removeTask('+t.id+')" title="Supprimer">✕</button></div>'+tbRow(t)+dlRow(t)+rdvRow(t)+'</div>';}
 
@@ -439,10 +458,17 @@ document.getElementById('edit-prio-grid').onclick=e=>{const btn=e.target.closest
 document.getElementById('tb-banner-close').onclick=()=>document.getElementById('tb-banner').classList.remove('show');
 function ajouterCalendrier(task,dtStr){const d=new Date(dtStr);const dEnd=new Date(d.getTime()+60*60*1000);function pad(n){return String(n).padStart(2,'0');}function fmtLocal(dt){return dt.getFullYear()+pad(dt.getMonth()+1)+pad(dt.getDate())+'T'+pad(dt.getHours())+pad(dt.getMinutes())+'00';}const qLabel={'do':'Urgent & Important','plan':'Important Pas urgent','delegate':'Urgent Pas important','eliminate':'Ni urgent Ni important'}[task.quadrant]||'';const lines=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Eisenhower Pro//FR','CALSCALE:GREGORIAN','METHOD:PUBLISH','BEGIN:VEVENT','DTSTART;TZID=Europe/Paris:'+fmtLocal(d),'DTEND;TZID=Europe/Paris:'+fmtLocal(dEnd),'SUMMARY:'+task.text,'DESCRIPTION:Eisenhower Pro - '+qLabel,'END:VEVENT','END:VCALENDAR'];const ics=lines.join('\r\n');const blob=new Blob([ics],{type:'text/calendar'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.setAttribute('download',task.text.replace(/[^a-z0-9]/gi,'_')+'.ics');document.body.appendChild(a);a.click();document.body.removeChild(a);setTimeout(()=>URL.revokeObjectURL(url),3000);}
 document.getElementById('rdv-save').onclick=saveRdv;
-document.getElementById('rdv-save-cal').onclick=()=>{const val=document.getElementById('rdv-datetime-input').value;if(!val){alert('Veuillez saisir une date et heure.');return;}const task=tasks.find(t=>t.id===rdvEditId);tasks=tasks.map(t=>t.id===rdvEditId?{...t,rdvDatetime:val}:t);document.getElementById('rdv-modal').classList.remove('open');save();render();rdvEditId=null;toast('📅 RDV enregistré !');if(task)setTimeout(()=>ajouterCalendrier({...task},val),300);};
+document.getElementById('rdv-save-cal').onclick=()=>{const d=document.getElementById('rdv-date-input').value;const h=document.getElementById('rdv-time-input').value;if(!d||!h){alert('Veuillez saisir une date ET une heure.');return;}const val=d+'T'+h;const task=tasks.find(t=>t.id===rdvEditId);tasks=tasks.map(t=>t.id===rdvEditId?{...t,rdvDatetime:val}:t);document.getElementById('rdv-modal').classList.remove('open');save();render();rdvEditId=null;toast('📅 RDV enregistré !');if(task)setTimeout(()=>ajouterCalendrier({...task},val),300);};
 document.getElementById('rdv-cancel').onclick=()=>{document.getElementById('rdv-modal').classList.remove('open');rdvEditId=null;};
 document.getElementById('rdv-clear').onclick=clearRdv;
 document.getElementById('rdv-modal').onclick=e=>{if(e.target===document.getElementById('rdv-modal')){document.getElementById('rdv-modal').classList.remove('open');rdvEditId=null;}};
+
+let dlEditId=null;
+function openDlModal(id){const task=tasks.find(t=>t.id===id);if(!task)return;dlEditId=id;document.getElementById('dl-modal-task-name').textContent=task.text;document.getElementById('dl-date-input').value=task.deadline||'';document.getElementById('dl-modal').classList.add('open');}
+document.getElementById('dl-save').onclick=()=>{const val=document.getElementById('dl-date-input').value;if(!val){alert('Veuillez saisir une date.');return;}tasks=tasks.map(t=>t.id===dlEditId?{...t,deadline:val}:t);document.getElementById('dl-modal').classList.remove('open');dlEditId=null;save();render();toast('📆 Date limite enregistrée !');};
+document.getElementById('dl-clear').onclick=()=>{tasks=tasks.map(t=>t.id===dlEditId?{...t,deadline:''}:t);document.getElementById('dl-modal').classList.remove('open');dlEditId=null;save();render();toast('Date supprimée');};
+document.getElementById('dl-cancel').onclick=()=>{document.getElementById('dl-modal').classList.remove('open');dlEditId=null;};
+document.getElementById('dl-modal').onclick=e=>{if(e.target===document.getElementById('dl-modal')){document.getElementById('dl-modal').classList.remove('open');dlEditId=null;}};
 load();render();
 </script>
 
