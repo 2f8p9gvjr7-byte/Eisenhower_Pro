@@ -116,9 +116,9 @@
     .save-badge.show{opacity:1;}
     .toast{position:fixed;bottom:60px;left:50%;transform:translateX(-50%);background:#1a2540;border:1px solid #f5a623;border-radius:99px;padding:8px 20px;font-size:.78rem;color:#f5a623;font-weight:700;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;}
     .toast.show{opacity:1;}
-    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;align-items:center;justify-content:center;padding:1rem;}
+    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;align-items:center;justify-content:center;padding:1rem;overflow-y:auto;}
     .modal-overlay.open{display:flex;}
-    .modal{background:#1a2540;border:1px solid #f5a623;border-radius:16px;padding:1.4rem;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;}
+    .modal{background:#1a2540;border:1px solid #f5a623;border-radius:16px;padding:1.4rem;width:100%;max-width:480px;overflow-y:auto;}
     .modal h3{color:#f5a623;font-size:.8rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;margin-bottom:1rem;}
     .modal input[type=text],.modal input[type=datetime-local]{width:100%;background:#0d1321;border:1px solid #2e3d5a;border-radius:10px;padding:12px 14px;font-size:.95rem;color:#e8f0f8;outline:none;margin-bottom:.9rem;}
     .modal input[type=text]:focus,.modal input[type=datetime-local]:focus{border-color:#f5a623;}
@@ -191,11 +191,18 @@
 </head>
 <body>
 
-<div id="update-banner" style="display:none;position:fixed;bottom:0;left:0;right:0;background:#4A6FA5;color:#fff;padding:14px 16px;z-index:9999;">
-<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
-  <span style="font-size:.85rem;font-weight:700;">🔄 Nouvelle version disponible !</span>
-  <button onclick="doUpdate()" style="background:#fff;color:#4A6FA5;border:none;border-radius:8px;padding:8px 16px;font-size:.82rem;font-weight:700;cursor:pointer;">Mettre à jour</button>
-  <button onclick="document.getElementById('update-banner').style.display='none'" style="background:none;border:none;color:rgba(255,255,255,.7);font-size:1.1rem;cursor:pointer;">✕</button>
+<div id="update-banner" style="display:none;position:fixed;bottom:0;left:0;right:0;background:#1a2540;border-top:2px solid #4A6FA5;color:#fff;padding:16px;z-index:9999;">
+<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
+  <div style="flex:1;">
+    <div style="font-size:.9rem;font-weight:700;color:#f5a623;margin-bottom:8px;">🔄 Nouvelle version disponible !</div>
+    <div style="font-size:.78rem;color:#c8d0e0;line-height:1.7;">
+      📅 Vous pouvez maintenant fixer un <b>rendez-vous</b> sur chaque tâche<br>
+      ⏰ Un nouvel onglet <b>RDV</b> liste tous vos rendez-vous à venir<br>
+      🗓️ Option pour l'ajouter à votre <b>calendrier</b>
+    </div>
+    <button onclick="doUpdate()" style="margin-top:12px;background:#4A6FA5;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:.82rem;font-weight:700;cursor:pointer;width:100%;">Toucher pour mettre à jour</button>
+  </div>
+  <button onclick="document.getElementById('update-banner').style.display='none'" style="background:none;border:none;color:rgba(255,255,255,.5);font-size:1.2rem;cursor:pointer;padding:0;">✕</button>
 </div>
 </div>
 
