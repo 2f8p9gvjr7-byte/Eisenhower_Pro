@@ -437,9 +437,20 @@ document.getElementById('edit-input').onkeydown=e=>{if(e.key==='Enter')saveEdit(
 document.getElementById('edit-modal').onclick=e=>{if(e.target===document.getElementById('edit-modal')){document.getElementById('edit-modal').classList.remove('open');editId=null;}};
 document.getElementById('edit-prio-grid').onclick=e=>{const btn=e.target.closest('[data-q]');if(!btn)return;document.querySelectorAll('#edit-prio-grid .prio-btn').forEach(b=>b.className='prio-btn');editQ=btn.dataset.q;btn.classList.add('s-'+editQ);};
 document.getElementById('tb-banner-close').onclick=()=>document.getElementById('tb-banner').classList.remove('show');
-function partagerCalendrier(task,dtStr){const d=new Date(dtStr);const dEnd=new Date(d.getTime()+60*60*1000);function pad(n){return String(n).padStart(2,'0');}function fmtIcs(dt){return dt.getFullYear()+pad(dt.getMonth()+1)+pad(dt.getDate())+'T'+pad(dt.getHours())+pad(dt.getMinutes())+'00';}const qLabel={'do':'Urgent & Important','plan':'Important Pas urgent','delegate':'Urgent Pas important','eliminate':'Ni urgent Ni important'}[task.quadrant]||'';const ics=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Eisenhower Pro//FR','CALSCALE:GREGORIAN','METHOD:PUBLISH','BEGIN:VEVENT','DTSTART;TZID=Europe/Paris:'+fmtIcs(d),'DTEND;TZID=Europe/Paris:'+fmtIcs(dEnd),'SUMMARY:'+task.text,'DESCRIPTION:Eisenhower Pro - '+qLabel,'END:VEVENT','END:VCALENDAR'].join('\r\n');const blob=new Blob([ics],{type:'text/calendar'});const file=new File([blob],task.text.replace(/[^a-z0-9]/gi,'_')+'.ics',{type:'text/calendar'});if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){navigator.share({files:[file],title:task.text}).catch(()=>{});}else{const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=file.name;document.body.appendChild(a);a.click();document.body.removeChild(a);setTimeout(()=>URL.revokeObjectURL(url),3000);}}
+function ajouterCalendrier(task,dtStr){const d=new Date(dtStr);const dEnd=new Date(d.getTime()+60*60*1000);function pad(n){return String(n).padStart(2,'0');}function fmtLocal(dt){return dt.getFullYear()+pad(dt.getMonth()+1)+pad(dt.getDate())+'T'+pad(dt.getHours())+pad(dt.getMinutes())+'00';}const qLabel={'do':'Urgent & Important','plan':'Important Pas urgent','delegate':'Urgent Pas important','eliminate':'Ni urgent Ni important'}[task.quadrant]||'';const ics='BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Eisenhower Pro//FR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+DTSTART;TZID=Europe/Paris:'+fmtLocal(d)+'
+DTEND;TZID=Europe/Paris:'+fmtLocal(dEnd)+'
+SUMMARY:'+task.text+'
+DESCRIPTION:Eisenhower Pro - '+qLabel+'
+END:VEVENT
+END:VCALENDAR';const blob=new Blob([ics],{type:'text/calendar'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.setAttribute('download',task.text.replace(/[^a-z0-9]/gi,'_')+'.ics');document.body.appendChild(a);a.click();document.body.removeChild(a);setTimeout(()=>URL.revokeObjectURL(url),3000);}
 document.getElementById('rdv-save').onclick=saveRdv;
-document.getElementById('rdv-save-cal').onclick=()=>{const val=document.getElementById('rdv-datetime-input').value;if(!val){alert('Veuillez saisir une date et heure.');return;}const task=tasks.find(t=>t.id===rdvEditId);tasks=tasks.map(t=>t.id===rdvEditId?{...t,rdvDatetime:val}:t);document.getElementById('rdv-modal').classList.remove('open');save();render();rdvEditId=null;toast('📅 RDV enregistré !');if(task)setTimeout(()=>partagerCalendrier({...task},val),300);};
+document.getElementById('rdv-save-cal').onclick=()=>{const val=document.getElementById('rdv-datetime-input').value;if(!val){alert('Veuillez saisir une date et heure.');return;}const task=tasks.find(t=>t.id===rdvEditId);tasks=tasks.map(t=>t.id===rdvEditId?{...t,rdvDatetime:val}:t);document.getElementById('rdv-modal').classList.remove('open');save();render();rdvEditId=null;toast('📅 RDV enregistré !');if(task)setTimeout(()=>ajouterCalendrier({...task},val),300);};
 document.getElementById('rdv-cancel').onclick=()=>{document.getElementById('rdv-modal').classList.remove('open');rdvEditId=null;};
 document.getElementById('rdv-clear').onclick=clearRdv;
 document.getElementById('rdv-modal').onclick=e=>{if(e.target===document.getElementById('rdv-modal')){document.getElementById('rdv-modal').classList.remove('open');rdvEditId=null;}};
