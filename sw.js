@@ -1,4 +1,4 @@
-const CACHE = 'eisenhower-pro-v1';
+const CACHE = 'eisenhower-pro-v2';
 const ASSETS = [
   '/Eisenhower_Pro/',
   '/Eisenhower_Pro/index.html',
