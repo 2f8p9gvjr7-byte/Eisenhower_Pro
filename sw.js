@@ -1,4 +1,4 @@
-const CACHE = 'eisenhower-pro-v2';
+const CACHE = 'eisenhower-pro-v3';
 const ASSETS = [
   '/Eisenhower_Pro/',
   '/Eisenhower_Pro/index.html',
@@ -9,7 +9,7 @@ const ASSETS = [
 ];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
-  self.skipWaiting();
+  // Ne pas skipWaiting ici — on attend que l'utilisateur valide la mise à jour
 });
 self.addEventListener('activate', e => {
   e.waitUntil(caches.keys().then(keys =>
