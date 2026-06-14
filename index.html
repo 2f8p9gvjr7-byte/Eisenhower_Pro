@@ -482,7 +482,7 @@ load();render();
 <script>
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/Eisenhower_Pro/sw.js", {updateViaCache: 'none'})
+    navigator.serviceWorker.register("/sw.js", {updateViaCache: 'none'})
       .then(reg => {
         reg.addEventListener("updatefound", () => {
           const newSW = reg.installing;
@@ -493,6 +493,8 @@ if ("serviceWorker" in navigator) {
             }
           });
         });
+        // Vérifie une mise à jour uniquement si connecté
+        if (navigator.onLine) reg.update();
       }).catch(e => console.warn("SW:", e));
   });
 }
