@@ -1,4 +1,4 @@
-const CACHE = 'eisenhower-pro-v4';
+const CACHE = 'eisenhower-pro-v5';
 const ASSETS = [
   '/Eisenhower_Pro/',
   '/Eisenhower_Pro/index.html',
@@ -18,6 +18,17 @@ self.addEventListener('activate', e => {
   self.clients.claim();
 });
 self.addEventListener('fetch', e => {
+  const isHTML = e.request.mode === 'navigate' || e.request.url.endsWith('/Eisenhower_Pro/') || e.request.url.endsWith('index.html');
+  if (isHTML) {
+    e.respondWith(
+      fetch(e.request).then(resp => {
+        const clone = resp.clone();
+        caches.open(CACHE).then(c => c.put(e.request, clone));
+        return resp;
+      }).catch(() => caches.match(e.request).then(c => c || caches.match('/Eisenhower_Pro/index.html')))
+    );
+    return;
+  }
   e.respondWith(
     caches.match(e.request).then(cached => {
       if (cached) return cached;
